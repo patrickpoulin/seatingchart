@@ -184,6 +184,7 @@ body.dragging { overscroll-behavior: none; }
 .lockbar .btn { flex: 0 0 auto; padding: 7px 14px; }
 .lockbar.editing { border-color: var(--copper); background: var(--copper-soft); }
 .lockbar.edited { border-color: var(--swap); }
+.btn.primary.is-new { background: var(--swap); border-color: var(--swap); }
 body.locked .guest { cursor: default; }
 body.locked .g-x, body.locked #undoBtn, body.locked #clearBtn { display: none !important; }
 @media (max-width: 900px) {

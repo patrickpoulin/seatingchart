@@ -90,20 +90,21 @@ function showEditor() {
 
 function renderLock() {
   const mobile = mobileQuery.matches;
+  const isNew = mobile && editedSinceUnlock;
   document.body.classList.toggle('locked', isLocked());
+  $('shareBtn').textContent = isNew ? 'Copy NEW! share link' : 'Copy share link';
+  $('shareBtn').classList.toggle('is-new', isNew);
   $('lockbar').hidden = !mobile;
   if (!mobile) return;
   $('lockbar').classList.toggle('editing', !locked);
-  $('lockbar').classList.toggle('edited', !locked && editedSinceUnlock);
-  if (locked) {
+  $('lockbar').classList.toggle('edited', editedSinceUnlock);
+  $('lockBtn').textContent = locked ? 'Unlock' : 'Lock';
+  if (editedSinceUnlock) {
+    $('lockText').innerHTML = '<b>You have a new version.</b> The original isn’t changed — tap <b>Copy NEW! share link</b> and send it back.';
+  } else if (locked) {
     $('lockText').innerHTML = '<b>View only.</b> Unlock to move people around.';
-    $('lockBtn').textContent = 'Unlock';
-  } else if (editedSinceUnlock) {
-    $('lockText').innerHTML = '<b>You have a new version.</b> The original isn’t changed — tap <b>Copy share link</b> and send it back.';
-    $('lockBtn').textContent = 'Lock';
   } else {
     $('lockText').innerHTML = '<b>Editing.</b> Press and hold a person, then drag. Changes make a new version you’ll need to share back.';
-    $('lockBtn').textContent = 'Lock';
   }
 }
 
@@ -419,7 +420,7 @@ function wire() {
   document.addEventListener('touchmove', (e) => { if (drag?.started) e.preventDefault(); }, { passive: false });
   document.addEventListener('contextmenu', (e) => { if (drag?.touch) e.preventDefault(); });
 
-  $('lockBtn').onclick = () => { locked = !locked; if (!locked) editedSinceUnlock = false; renderLock(); };
+  $('lockBtn').onclick = () => { locked = !locked; renderLock(); };
   mobileQuery.addEventListener('change', () => { if (state && !$('editor').hidden) { buildStage(); render(); } });
 
   document.addEventListener('click', (e) => {
