@@ -1,6 +1,6 @@
-import { VENUES, CARD_W, CARD_H, findRoom, roomSeats, roomLayout } from './venues.js';
-import { encodeState, decodeState, newKey } from './share.js';
-import { parseGuests } from './paste.js';
+import { VENUES, CARD_W, CARD_H, findRoom, roomSeats, roomLayout } from './venues.js?v=0bed855';
+import { encodeState, decodeState, newKey } from './share.js?v=0bed855';
+import { parseGuests } from './paste.js?v=0bed855';
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

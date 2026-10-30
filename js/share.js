@@ -1,7 +1,7 @@
 // Encodes the whole chart into the URL fragment (#c=...).
 // The fragment is never sent to any server, so a chart only exists for people who have its link.
 
-import { findRoom, roomSeats } from './venues.js';
+import { findRoom, roomSeats } from './venues.js?v=0bed855';
 
 const hasCompression = typeof CompressionStream !== 'undefined';
 

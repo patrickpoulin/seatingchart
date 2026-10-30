@@ -21,3 +21,10 @@ Note: links store seats by position, so changing the seat count of an existing r
 - `js/share.js` – link encoding (deflate + base64url)
 - `js/paste.js` – parses pasted Excel/Sheets/CSV rows
 - `js/venues.js` – venue/room/table definitions
+
+## Cache busting
+Phones and GitHub Pages cache CSS/JS for a while. After changing any file in `css/` or `js/`, bump the `?v=` tag everywhere it appears (`index.html`, the imports at the top of `js/app.js` and `js/share.js`), e.g.:
+
+```sh
+V=$(date +%s); sed -i -E "s/\?v=[A-Za-z0-9]+/?v=$V/g" index.html js/app.js js/share.js
+```
