@@ -116,13 +116,13 @@ textarea { resize: vertical; font-family: ui-monospace, Menlo, monospace; font-s
   padding: 16px; overflow-x: auto; overflow-y: hidden; box-shadow: var(--shadow);
 }
 .stage { position: relative; transform-origin: top left; }
-.stage-wrap::after { content: ''; display: block; width: var(--stage-w, 0); height: 0; } /* gives the scroller the scaled width */
 
 .table {
   position: absolute; border-radius: 14px;
   background: var(--table); border: 2px solid var(--table-edge);
   display: grid; place-items: center;
 }
+.stage.tall .table span { writing-mode: vertical-rl; }
 .table span {
   font-family: Fraunces, Georgia, serif; font-size: 15px; color: var(--ink); opacity: .55; letter-spacing: .04em;
 }
@@ -187,7 +187,8 @@ body.dragging { overscroll-behavior: none; }
 body.locked .guest { cursor: default; }
 body.locked .g-x, body.locked #undoBtn, body.locked #clearBtn { display: none !important; }
 @media (max-width: 900px) {
-  .add-panel, .tray-panel .hint { display: none; }
+  .add-panel, .tray-panel .hint, #printBtn { display: none; }
+  .stage-wrap { padding: 8px; }
 }
 
 /* ── side panels ── */

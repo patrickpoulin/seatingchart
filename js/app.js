@@ -1,4 +1,4 @@
-import { VENUES, CARD_W, CARD_H, findRoom, roomSeats } from './venues.js';
+import { VENUES, CARD_W, CARD_H, findRoom, roomSeats, roomLayout } from './venues.js';
 import { encodeState, decodeState, newKey } from './share.js';
 import { parseGuests } from './paste.js';
 
@@ -109,22 +109,25 @@ function renderLock() {
 
 /** Lays out tables and empty seat slots once per room; guests are rendered into them by render(). */
 function buildStage() {
-  const seats = roomSeats(room);
-  const pad = 24;
-  const xs = [...seats.map((s) => s.x - CARD_W / 2), ...room.tables.map((t) => t.x)];
-  const ys = [...seats.map((s) => s.y - CARD_H / 2), ...room.tables.map((t) => t.y)];
-  const xe = [...seats.map((s) => s.x + CARD_W / 2), ...room.tables.map((t) => t.x + t.w)];
-  const ye = [...seats.map((s) => s.y + CARD_H / 2), ...room.tables.map((t) => t.y + t.h)];
+  const tall = mobileQuery.matches;
+  const tablesL = roomLayout(room, tall ? 'tall' : 'wide');
+  const seats = tablesL.flatMap((t) => t.seats);
+  const pad = tall ? 8 : 24;
+  const xs = [...seats.map((s) => s.x - CARD_W / 2), ...tablesL.map((t) => t.x)];
+  const ys = [...seats.map((s) => s.y - CARD_H / 2), ...tablesL.map((t) => t.y)];
+  const xe = [...seats.map((s) => s.x + CARD_W / 2), ...tablesL.map((t) => t.x + t.w)];
+  const ye = [...seats.map((s) => s.y + CARD_H / 2), ...tablesL.map((t) => t.y + t.h)];
   const minX = Math.min(...xs) - pad, minY = Math.min(...ys) - pad;
   const W = Math.max(...xe) + pad - minX, H = Math.max(...ye) + pad - minY;
 
   const stage = $('stage');
+  stage.classList.toggle('tall', tall);
   stage.style.width = W + 'px';
   stage.style.height = H + 'px';
   stage.dataset.w = W;
   stage.dataset.h = H;
 
-  const tables = room.tables.map((t) => `
+  const tables = tablesL.map((t) => `
     <div class="table" style="left:${t.x - minX}px;top:${t.y - minY}px;width:${t.w}px;height:${t.h}px">
       <span>${esc(t.label || '')}</span>
     </div>`).join('');
@@ -143,11 +146,16 @@ function fitStage() {
   const wrap = $('stageWrap');
   if (!stage.dataset.w) return;
   const W = +stage.dataset.w, H = +stage.dataset.h;
-  const avail = wrap.clientWidth - 32;
-  const scale = Math.max(0.62, Math.min(1.25, avail / W)); // below ~0.62 cards get unreadable, so scroll instead
+  const cs = getComputedStyle(wrap);
+  const avail = wrap.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  // the phone layout always fits the width; the wide layout scrolls rather than shrinking cards past ~62%
+  const min = stage.classList.contains('tall') ? 0 : 0.62;
+  const scale = Math.max(min, Math.min(1.25, avail / W));
   stage.style.transform = `scale(${scale})`;
-  wrap.style.height = H * scale + 32 + 'px';
-  stage.parentElement.style.setProperty('--stage-w', W * scale + 'px');
+  // transforms don't shrink the layout box, so pull the margins in to match the scaled size (no phantom scroll area)
+  stage.style.marginRight = W * scale - W + 'px';
+  stage.style.marginBottom = H * scale - H + 'px';
+  wrap.style.height = '';
 }
 
 function guestCard(g, seated) {
@@ -412,7 +420,7 @@ function wire() {
   document.addEventListener('contextmenu', (e) => { if (drag?.touch) e.preventDefault(); });
 
   $('lockBtn').onclick = () => { locked = !locked; if (!locked) editedSinceUnlock = false; renderLock(); };
-  mobileQuery.addEventListener('change', () => { if (state) renderLock(); });
+  mobileQuery.addEventListener('change', () => { if (state && !$('editor').hidden) { buildStage(); render(); } });
 
   document.addEventListener('click', (e) => {
     const x = e.target.closest('.g-x');
@@ -460,7 +468,8 @@ function wire() {
     const s = $('stage');
     const scale = Math.min(1, 980 / +s.dataset.w);
     s.style.transform = `scale(${scale})`;
-    $('stageWrap').style.height = +s.dataset.h * scale + 'px';
+    s.style.marginRight = +s.dataset.w * scale - +s.dataset.w + 'px';
+    s.style.marginBottom = +s.dataset.h * scale - +s.dataset.h + 'px';
   });
   window.addEventListener('afterprint', fitStage);
 }
