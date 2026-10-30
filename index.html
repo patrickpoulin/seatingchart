@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Seating Chart</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" title="Start over">Seating<span>Chart</span></a>
+    <div class="crumbs" id="crumbs"></div>
+  </header>
+
+  <!-- Step 1: pick venue + room -->
+  <main id="picker" class="view" hidden>
+    <section class="picker-card">
+      <h1>New seating chart</h1>
+      <p class="muted">Pick a venue and a room. You'll get a private link you can send to anyone.</p>
+      <label class="field">
+        <span>Venue</span>
+        <select id="venueSelect"></select>
+      </label>
+      <label class="field">
+        <span>Room</span>
+        <select id="roomSelect"></select>
+      </label>
+      <p class="muted small" id="roomInfo"></p>
+      <button class="btn primary" id="startBtn">Create chart</button>
+    </section>
+  </main>
+
+  <!-- Step 2: the editor -->
+  <main id="editor" class="view" hidden>
+    <div class="toolbar">
+      <input id="titleInput" class="title-input" placeholder="Event name (optional)" maxlength="80" />
+      <div class="tool-group">
+        <button class="btn" id="undoBtn" title="Undo (Ctrl/⌘+Z)">Undo</button>
+        <button class="btn" id="shuffleBtn" title="Randomly reseat everyone">Shuffle</button>
+        <button class="btn" id="clearBtn" title="Move everyone to the unseated list">Unseat all</button>
+        <button class="btn" id="csvBtn">CSV</button>
+        <button class="btn" id="printBtn">Print</button>
+        <button class="btn primary" id="shareBtn">Copy share link</button>
+      </div>
+    </div>
+
+    <div class="workspace">
+      <section class="stage-wrap" id="stageWrap">
+        <div class="stage" id="stage"></div>
+      </section>
+
+      <aside class="side">
+        <div class="panel">
+          <h2>Add guests</h2>
+          <p class="muted small">Paste rows from Excel or Google Sheets: <b>Name</b> then <b>Company</b>, one person per line. Comma-separated works too.</p>
+          <textarea id="pasteBox" rows="7" placeholder="Jane Doe	Acme Corp&#10;John Smith	Globex&#10;…"></textarea>
+          <p class="muted small" id="pastePreview">&nbsp;</p>
+          <div class="row">
+            <button class="btn primary" id="addBtn" disabled>Add &amp; fill empty seats</button>
+            <button class="btn" id="replaceBtn" disabled>Replace everyone</button>
+          </div>
+        </div>
+
+        <div class="panel tray-panel">
+          <h2>Unseated <span class="count" id="trayCount">0</span></h2>
+          <div class="tray" id="tray" data-drop="tray"></div>
+          <p class="muted small hint">Drag a card onto a seat. Dropping on someone swaps you. Double-click a card to edit.</p>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <main id="error" class="view" hidden>
+    <section class="picker-card">
+      <h1>Couldn't open this link</h1>
+      <p class="muted" id="errorMsg"></p>
+      <a class="btn primary" href="./">Start a new chart</a>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
