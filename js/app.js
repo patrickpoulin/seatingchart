@@ -10,6 +10,12 @@ let room = null;
 let undoStack = [];
 let lastHash = '';
 
+// On phones the chart opens read-only; editing is opt-in so scrolling can't move people by accident.
+const mobileQuery = matchMedia('(max-width: 900px)');
+let locked = mobileQuery.matches;
+let editedSinceUnlock = false;
+const isLocked = () => locked && mobileQuery.matches;
+
 // ───────────────────────── routing ─────────────────────────
 
 async function route() {
@@ -76,8 +82,29 @@ function showEditor() {
   const { venue } = findRoom(state.venue, state.room);
   setCrumbs(`<span>${esc(venue.name)}</span><span class="sep">/</span><span>${esc(room.name)}</span>`);
   $('titleInput').value = state.title;
+  locked = mobileQuery.matches;
+  editedSinceUnlock = false;
   buildStage();
   render();
+}
+
+function renderLock() {
+  const mobile = mobileQuery.matches;
+  document.body.classList.toggle('locked', isLocked());
+  $('lockbar').hidden = !mobile;
+  if (!mobile) return;
+  $('lockbar').classList.toggle('editing', !locked);
+  $('lockbar').classList.toggle('edited', !locked && editedSinceUnlock);
+  if (locked) {
+    $('lockText').innerHTML = '<b>View only.</b> Unlock to move people around.';
+    $('lockBtn').textContent = 'Unlock';
+  } else if (editedSinceUnlock) {
+    $('lockText').innerHTML = '<b>You have a new version.</b> The original isn’t changed — tap <b>Copy share link</b> and send it back.';
+    $('lockBtn').textContent = 'Lock';
+  } else {
+    $('lockText').innerHTML = '<b>Editing.</b> Press and hold a person, then drag. Changes make a new version you’ll need to share back.';
+    $('lockBtn').textContent = 'Lock';
+  }
 }
 
 /** Lays out tables and empty seat slots once per room; guests are rendered into them by render(). */
@@ -146,6 +173,7 @@ function render() {
     : `<div class="tray-empty">${state.guests.length ? 'Everyone has a seat.' : 'No guests yet — paste a list above.'}</div>`;
   $('trayCount').textContent = unseated.length;
   $('undoBtn').disabled = !undoStack.length;
+  renderLock();
 }
 
 // ───────────────────────── state changes ─────────────────────────
@@ -159,6 +187,7 @@ function change(fn) {
   undoStack.push(snapshot());
   if (undoStack.length > 100) undoStack.shift();
   fn();
+  editedSinceUnlock = true;
   render();
   commit();
 }
@@ -235,30 +264,57 @@ function addGuests(list, replace) {
 
 let drag = null;
 
+const HOLD_MS = 280; // touch: press-and-hold before a drag starts, so swipes still scroll
+
 function onPointerDown(e) {
-  if (e.button !== 0) return;
+  if (e.button !== 0 || isLocked()) return;
   const card = e.target.closest('.guest');
   if (!card || e.target.closest('.g-x')) return;
-  drag = { gid: card.dataset.guest, card, sx: e.clientX, sy: e.clientY, started: false, target: null, pid: e.pointerId };
-  card.setPointerCapture(e.pointerId);
+  const touch = e.pointerType !== 'mouse';
+  drag = { gid: card.dataset.guest, card, sx: e.clientX, sy: e.clientY, started: false, target: null, pid: e.pointerId, touch, armed: !touch };
+  if (touch) {
+    drag.timer = setTimeout(() => {
+      if (!drag || drag.card !== card) return;
+      drag.armed = true;
+      card.classList.add('armed');
+      navigator.vibrate?.(15);
+      beginDrag(e.clientX, e.clientY);
+    }, HOLD_MS);
+  } else {
+    card.setPointerCapture(e.pointerId);
+  }
+}
+
+function beginDrag(x, y) {
+  drag.started = true;
+  const r = drag.card.getBoundingClientRect();
+  drag.offX = drag.sx - r.left;
+  drag.offY = drag.sy - r.top;
+  drag.ghost = drag.card.cloneNode(true);
+  drag.ghost.classList.add('ghost');
+  drag.ghost.style.width = r.width + 'px';
+  drag.ghost.style.height = r.height + 'px';
+  drag.ghost.style.left = x - drag.offX + 'px';
+  drag.ghost.style.top = y - drag.offY + 'px';
+  document.body.appendChild(drag.ghost);
+  drag.card.classList.add('lifted');
+  document.body.classList.add('dragging');
+}
+
+function cancelPending() {
+  if (!drag) return;
+  clearTimeout(drag.timer);
+  drag.card.classList.remove('armed');
+  drag = null;
 }
 
 function onPointerMove(e) {
   if (!drag || e.pointerId !== drag.pid) return;
   const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
   if (!drag.started) {
-    if (Math.hypot(dx, dy) < 5) return;
-    drag.started = true;
-    const r = drag.card.getBoundingClientRect();
-    drag.offX = drag.sx - r.left;
-    drag.offY = drag.sy - r.top;
-    drag.ghost = drag.card.cloneNode(true);
-    drag.ghost.classList.add('ghost');
-    drag.ghost.style.width = r.width + 'px';
-    drag.ghost.style.height = r.height + 'px';
-    document.body.appendChild(drag.ghost);
-    drag.card.classList.add('lifted');
-    document.body.classList.add('dragging');
+    if (Math.hypot(dx, dy) < (drag.touch ? 8 : 5)) return;
+    if (!drag.armed) return cancelPending(); // finger moved before the hold finished → it's a scroll
+    beginDrag(e.clientX, e.clientY);
   }
   drag.ghost.style.left = e.clientX - drag.offX + 'px';
   drag.ghost.style.top = e.clientY - drag.offY + 'px';
@@ -268,6 +324,8 @@ function onPointerMove(e) {
 function onPointerUp(e) {
   if (!drag || e.pointerId !== drag.pid) return;
   const { started, gid, target, ghost, card } = drag;
+  clearTimeout(drag.timer);
+  card.classList.remove('armed');
   drag = null;
   if (!started) return;
   document.body.classList.remove('dragging');
@@ -331,25 +389,6 @@ async function copyLink() {
   }
 }
 
-function exportCsv() {
-  const byId = Object.fromEntries(state.guests.map((g) => [g.id, g]));
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
-  const rows = [['Seat', 'Table', 'Name', 'Company']];
-  roomSeats(room).forEach((s, i) => {
-    const g = byId[state.seats[s.id]];
-    const t = room.tables.find((x) => x.id === s.tableId);
-    rows.push([i + 1, t.label || t.id, g?.name || '', g?.company || '']);
-  });
-  const seated = new Set(Object.values(state.seats));
-  state.guests.filter((g) => !seated.has(g.id)).forEach((g) => rows.push(['', 'Unseated', g.name, g.company]));
-  const blob = new Blob([rows.map((r) => r.map(q).join(',')).join('\r\n')], { type: 'text/csv' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `${(state.title || room.name).replace(/[^\w\- ]+/g, '').trim() || 'seating'}.csv`;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-}
-
 function editGuest(gid) {
   const g = state.guests.find((x) => x.id === gid);
   if (!g) return;
@@ -360,21 +399,6 @@ function editGuest(gid) {
   change(() => { g.name = name.trim(); g.company = company.trim(); });
 }
 
-function shuffle() {
-  if (!state.guests.length) return;
-  change(() => {
-    const ids = roomSeats(room).map((s) => s.id);
-    const seated = ids.map((id) => state.seats[id]).filter(Boolean);
-    for (let i = seated.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [seated[i], seated[j]] = [seated[j], seated[i]];
-    }
-    ids.forEach((id) => (state.seats[id] = null));
-    const order = [...ids].sort(() => Math.random() - 0.5);
-    seated.forEach((gid, i) => (state.seats[order[i]] = gid));
-  });
-}
-
 // ───────────────────────── wiring ─────────────────────────
 
 function wire() {
@@ -383,16 +407,23 @@ function wire() {
   document.addEventListener('pointerup', onPointerUp);
   document.addEventListener('pointercancel', onPointerUp);
 
+  // once a touch drag has started, stop the page from scrolling under the finger
+  document.addEventListener('touchmove', (e) => { if (drag?.started) e.preventDefault(); }, { passive: false });
+  document.addEventListener('contextmenu', (e) => { if (drag?.touch) e.preventDefault(); });
+
+  $('lockBtn').onclick = () => { locked = !locked; if (!locked) editedSinceUnlock = false; renderLock(); };
+  mobileQuery.addEventListener('change', () => { if (state) renderLock(); });
+
   document.addEventListener('click', (e) => {
     const x = e.target.closest('.g-x');
-    if (!x) return;
+    if (!x || isLocked()) return;
     const gid = x.closest('.guest').dataset.guest;
     if (x.dataset.action === 'unseat') moveGuest(gid, 'tray');
     else change(() => { state.guests = state.guests.filter((g) => g.id !== gid); });
   });
   document.addEventListener('dblclick', (e) => {
     const card = e.target.closest('.guest');
-    if (card) editGuest(card.dataset.guest);
+    if (card && !isLocked()) editGuest(card.dataset.guest);
   });
 
   const box = $('pasteBox');
@@ -411,9 +442,7 @@ function wire() {
 
   $('titleInput').addEventListener('change', (e) => change(() => (state.title = e.target.value.trim())));
   $('undoBtn').onclick = undo;
-  $('shuffleBtn').onclick = shuffle;
   $('clearBtn').onclick = () => change(() => { for (const k in state.seats) state.seats[k] = null; });
-  $('csvBtn').onclick = exportCsv;
   $('printBtn').onclick = () => window.print();
   $('shareBtn').onclick = copyLink;
 

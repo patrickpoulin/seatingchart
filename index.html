@@ -39,12 +39,15 @@
       <input id="titleInput" class="title-input" placeholder="Event name (optional)" maxlength="80" />
       <div class="tool-group">
         <button class="btn" id="undoBtn" title="Undo (Ctrl/⌘+Z)">Undo</button>
-        <button class="btn" id="shuffleBtn" title="Randomly reseat everyone">Shuffle</button>
         <button class="btn" id="clearBtn" title="Move everyone to the unseated list">Unseat all</button>
-        <button class="btn" id="csvBtn">CSV</button>
         <button class="btn" id="printBtn">Print</button>
         <button class="btn primary" id="shareBtn">Copy share link</button>
       </div>
+    </div>
+
+    <div class="lockbar" id="lockbar" hidden>
+      <div class="lock-text" id="lockText"></div>
+      <button class="btn" id="lockBtn"></button>
     </div>
 
     <div class="workspace">
@@ -53,7 +56,7 @@
       </section>
 
       <aside class="side">
-        <div class="panel">
+        <div class="panel add-panel">
           <h2>Add guests</h2>
           <p class="muted small">Paste rows from Excel or Google Sheets: <b>Name</b> then <b>Company</b>, one person per line. Comma-separated works too.</p>
           <textarea id="pasteBox" rows="7" placeholder="Jane Doe	Acme Corp&#10;John Smith	Globex&#10;…"></textarea>

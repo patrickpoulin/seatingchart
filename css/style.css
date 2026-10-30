@@ -148,7 +148,7 @@ textarea { resize: vertical; font-family: ui-monospace, Menlo, monospace; font-s
   position: relative; width: 100%; height: 100%;
   background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--copper);
   border-radius: var(--radius); padding: 7px 22px 7px 10px; box-shadow: var(--shadow);
-  cursor: grab; user-select: none; touch-action: none;
+  cursor: grab; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
   display: flex; flex-direction: column; justify-content: center; overflow: hidden;
 }
 .guest:hover { border-color: var(--copper); border-left-color: var(--copper); }
@@ -171,6 +171,24 @@ textarea { resize: vertical; font-family: ui-monospace, Menlo, monospace; font-s
 }
 .guest.ghost.returning { transition: left .17s ease, top .17s ease, transform .17s; transform: none; }
 body.dragging, body.dragging * { cursor: grabbing !important; }
+body.dragging { overscroll-behavior: none; }
+.guest.armed { outline: 2px solid var(--copper); }
+
+/* ── mobile lock ── */
+.lockbar {
+  display: flex; align-items: center; gap: 12px; margin: 0 16px 12px;
+  padding: 10px 12px 10px 14px; border-radius: 12px; font-size: 13.5px; line-height: 1.4;
+  background: var(--surface); border: 1px solid var(--line);
+}
+.lockbar .lock-text { flex: 1; }
+.lockbar .btn { flex: 0 0 auto; padding: 7px 14px; }
+.lockbar.editing { border-color: var(--copper); background: var(--copper-soft); }
+.lockbar.edited { border-color: var(--swap); }
+body.locked .guest { cursor: default; }
+body.locked .g-x, body.locked #undoBtn, body.locked #clearBtn { display: none !important; }
+@media (max-width: 900px) {
+  .add-panel, .tray-panel .hint { display: none; }
+}
 
 /* ── side panels ── */
 .side { display: flex; flex-direction: column; gap: 16px; }
