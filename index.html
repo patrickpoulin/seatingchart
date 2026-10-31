@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=0bed855" />
+  <link rel="stylesheet" href="css/style.css?v=c79539" />
 </head>
 <body>
   <header class="topbar">
@@ -30,6 +30,34 @@
       </label>
       <p class="muted small" id="roomInfo"></p>
       <button class="btn primary" id="startBtn">Create chart</button>
+    </section>
+
+    <div class="or"><span>or</span></div>
+
+    <section class="picker-card" id="customCard">
+      <h2 class="card-title">Set up your own room</h2>
+      <p class="muted">Choose how many tables, then how many seats at each.</p>
+      <label class="field">
+        <span>Room name <em class="muted">(optional)</em></span>
+        <input id="customName" class="text-input" maxlength="40" placeholder="e.g. Main Dining Room" />
+      </label>
+      <div class="field">
+        <span>Number of tables</span>
+        <div class="stepper" data-min="1" data-max="20">
+          <button type="button" data-step="-1" aria-label="Fewer tables">−</button>
+          <input id="tableCount" type="number" inputmode="numeric" min="1" max="20" value="2" aria-label="Number of tables" />
+          <button type="button" data-step="1" aria-label="More tables">+</button>
+        </div>
+      </div>
+      <div class="field">
+        <div class="seats-head">
+          <span>Seats at each table</span>
+          <button type="button" class="link-btn" id="sameForAll">Make all match Table 1</button>
+        </div>
+        <div id="tableRows" class="table-rows"></div>
+      </div>
+      <p class="muted small" id="customInfo"></p>
+      <button class="btn primary" id="customStartBtn">Create chart</button>
     </section>
   </main>
 
@@ -86,6 +114,6 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script type="module" src="js/app.js?v=0bed855"></script>
+  <script type="module" src="js/app.js?v=c79539"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
-import { VENUES, CARD_W, CARD_H, findRoom, roomSeats, roomLayout } from './venues.js?v=0bed855';
-import { encodeState, decodeState, newKey } from './share.js?v=0bed855';
-import { parseGuests } from './paste.js?v=0bed855';
+import { VENUES, CARD_W, CARD_H, CUSTOM_LIMITS, findRoom, resolveRoom, customRoom, roomSeats, roomLayout } from './venues.js?v=c79539';
+import { encodeState, decodeState, newKey } from './share.js?v=c79539';
+import { parseGuests } from './paste.js?v=c79539';
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -24,7 +24,7 @@ async function route() {
   if (location.hash === lastHash && state) return; // our own update
   try {
     state = await decodeState(m[1]);
-    room = findRoom(state.venue, state.room).room;
+    room = resolveRoom(state).room;
     undoStack = [];
     lastHash = location.hash;
     showEditor();
@@ -66,21 +66,101 @@ function showPicker() {
   fillRooms();
   $('startBtn').onclick = () => {
     const found = findRoom(vs.value, $('roomSelect').value);
-    room = found.room;
-    state = { venue: found.venue.id, room: room.id, title: '', key: newKey(), guests: [], seats: {} };
-    roomSeats(room).forEach((s) => (state.seats[s.id] = null));
-    undoStack = [];
-    showEditor();
-    commit(false);
+    startChart({ venue: found.venue.id, room: found.room.id }, found.room);
   };
+  setupCustomPicker();
+}
+
+function startChart(base, r) {
+  room = r;
+  state = { ...base, title: '', key: newKey(), guests: [], seats: {} };
+  roomSeats(room).forEach((s) => (state.seats[s.id] = null));
+  undoStack = [];
+  showEditor();
+  commit(false);
+}
+
+// ───────────────────────── custom room builder ─────────────────────────
+
+let customCounts = [8, 8];
+
+function clampInt(v, [lo, hi], fallback) {
+  const n = Math.round(Number(v));
+  return Number.isFinite(n) && v !== '' ? Math.min(hi, Math.max(lo, n)) : fallback;
+}
+
+function setupCustomPicker() {
+  const [sMin, sMax] = CUSTOM_LIMITS.seats;
+  const countInput = $('tableCount');
+  countInput.value = customCounts.length;
+
+  const renderRows = () => {
+    $('tableRows').innerHTML = customCounts.map((n, i) => `
+      <div class="table-row">
+        <span>Table ${i + 1}</span>
+        <div class="stepper small" data-min="${sMin}" data-max="${sMax}">
+          <button type="button" data-step="-1" aria-label="Fewer seats at table ${i + 1}">−</button>
+          <input type="number" inputmode="numeric" min="${sMin}" max="${sMax}" value="${n}" data-table="${i}" aria-label="Seats at table ${i + 1}" />
+          <button type="button" data-step="1" aria-label="More seats at table ${i + 1}">+</button>
+        </div>
+      </div>`).join('');
+    $('sameForAll').hidden = customCounts.length < 2;
+    summarize();
+  };
+  const summarize = () => {
+    const total = customCounts.reduce((a, b) => a + b, 0);
+    const t = customCounts.length;
+    $('customInfo').textContent = `${t} table${t > 1 ? 's' : ''} · ${total} seats`;
+  };
+  const setTableCount = (v) => {
+    const n = clampInt(v, CUSTOM_LIMITS.tables, customCounts.length);
+    const last = customCounts[customCounts.length - 1] ?? 8;
+    while (customCounts.length < n) customCounts.push(last);
+    customCounts.length = n;
+    renderRows();
+  };
+
+  countInput.oninput = () => { if (countInput.value !== '') setTableCount(countInput.value); };
+  countInput.onblur = () => { countInput.value = customCounts.length; };
+  $('tableRows').oninput = (e) => {
+    const i = e.target.dataset.table;
+    if (i === undefined || e.target.value === '') return;
+    customCounts[i] = clampInt(e.target.value, CUSTOM_LIMITS.seats, customCounts[i]);
+    summarize();
+  };
+  $('tableRows').onfocusout = (e) => {
+    const i = e.target.dataset.table;
+    if (i !== undefined) e.target.value = customCounts[i];
+  };
+  $('sameForAll').onclick = () => { customCounts = customCounts.map(() => customCounts[0]); renderRows(); };
+
+  // − / + buttons on any stepper
+  $('customCard').onclick = (e) => {
+    const btn = e.target.closest('.stepper button');
+    if (!btn) return;
+    const box = btn.closest('.stepper');
+    const input = box.querySelector('input');
+    const next = clampInt(+input.value + +btn.dataset.step, [+box.dataset.min, +box.dataset.max], +input.value);
+    input.value = next;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+
+  $('customStartBtn').onclick = () => {
+    const name = $('customName').value.trim();
+    const r = customRoom(name, customCounts);
+    startChart({ venue: 'custom', room: 'custom', custom: r.custom }, r);
+  };
+  renderRows();
 }
 
 // ───────────────────────── editor ─────────────────────────
 
 function showEditor() {
   show('editor');
-  const { venue } = findRoom(state.venue, state.room);
-  setCrumbs(`<span>${esc(venue.name)}</span><span class="sep">/</span><span>${esc(room.name)}</span>`);
+  const { venue } = resolveRoom(state);
+  setCrumbs(state.venue === 'custom'
+    ? `<span>${esc(room.name)}</span>`
+    : `<span>${esc(venue.name)}</span><span class="sep">/</span><span>${esc(room.name)}</span>`);
   $('titleInput').value = state.title;
   locked = mobileQuery.matches;
   editedSinceUnlock = false;
@@ -133,9 +213,9 @@ function buildStage() {
       <span>${esc(t.label || '')}</span>
     </div>`).join('');
 
-  const slots = seats.map((s, i) => `
+  const slots = tablesL.flatMap((t) => t.seats.map((s, i) => ({ ...s, num: i + 1 }))).map((s) => `
     <div class="seat" data-seat="${s.id}" style="left:${s.x - minX - CARD_W / 2}px;top:${s.y - minY - CARD_H / 2}px;width:${CARD_W}px;height:${CARD_H}px">
-      <span class="seat-no">${i + 1}</span>
+      <span class="seat-no">${s.num}</span>
     </div>`).join('');
 
   stage.innerHTML = tables + slots;

@@ -75,15 +75,16 @@ h2 { font-size: 17px; display: flex; align-items: center; gap: 8px; }
 
 .field { display: block; margin: 14px 0; }
 .field span { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
-select, textarea, .title-input {
+select, textarea, .title-input, .text-input {
   width: 100%; font: 14px Inter, system-ui, sans-serif; color: var(--ink);
   background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px;
 }
-select:focus, textarea:focus, .title-input:focus { outline: 2px solid var(--copper); outline-offset: -1px; border-color: transparent; }
+select:focus, textarea:focus, .title-input:focus, .text-input:focus { outline: 2px solid var(--copper); outline-offset: -1px; border-color: transparent; }
 textarea { resize: vertical; font-family: ui-monospace, Menlo, monospace; font-size: 13px; }
 
 /* ── picker ── */
 #picker, #error { display: grid; place-items: center; padding: 60px 16px; }
+#picker { gap: 18px; align-content: start; }
 .picker-card {
   width: 100%; max-width: 440px; background: var(--surface);
   border: 1px solid var(--line); border-radius: 14px; padding: 32px; box-shadow: var(--shadow);
@@ -235,3 +236,48 @@ body.locked .g-x, body.locked #undoBtn, body.locked #clearBtn { display: none !i
   .stage-wrap { border: 0; padding: 0; }
   .guest { border-left-width: 1px; }
 }
+
+/* ── custom room builder ── */
+.card-title { font-size: 24px; }
+.field em { font-style: normal; font-weight: 400; }
+.or {
+  width: 100%; max-width: 440px; display: flex; align-items: center; gap: 12px;
+  color: var(--muted); font-size: 13px;
+}
+.or::before, .or::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+.stepper {
+  display: inline-flex; align-items: stretch; border: 1px solid var(--line);
+  border-radius: 8px; overflow: hidden; background: var(--surface);
+}
+.stepper button {
+  appearance: none; border: 0; background: transparent; color: var(--ink);
+  width: 40px; font-size: 18px; cursor: pointer;
+}
+.stepper button:hover { background: var(--copper-soft); }
+.stepper input {
+  width: 56px; border: 0; border-left: 1px solid var(--line); border-right: 1px solid var(--line);
+  text-align: center; font: 600 15px Inter, system-ui, sans-serif; color: var(--ink);
+  background: transparent; padding: 8px 0; -moz-appearance: textfield;
+}
+.stepper input::-webkit-outer-spin-button, .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.stepper input:focus { outline: 2px solid var(--copper); outline-offset: -2px; }
+.stepper.small button { width: 34px; font-size: 16px; }
+.stepper.small input { width: 46px; padding: 6px 0; font-size: 14px; }
+
+.seats-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+.seats-head > span { font-size: 13px; font-weight: 600; }
+.link-btn {
+  appearance: none; border: 0; background: none; padding: 0; cursor: pointer;
+  color: var(--copper-dark); font: 500 13px Inter, system-ui, sans-serif; text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.table-rows {
+  display: flex; flex-direction: column; max-height: 320px; overflow-y: auto;
+  border: 1px solid var(--line); border-radius: 10px;
+}
+.table-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 7px 8px 7px 14px; font-size: 14px;
+}
+.table-row + .table-row { border-top: 1px solid var(--line); }

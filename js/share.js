@@ -1,7 +1,7 @@
 // Encodes the whole chart into the URL fragment (#c=...).
 // The fragment is never sent to any server, so a chart only exists for people who have its link.
 
-import { findRoom, roomSeats } from './venues.js?v=0bed855';
+import { resolveRoom, roomSeats } from './venues.js?v=c79539';
 
 const hasCompression = typeof CompressionStream !== 'undefined';
 
@@ -21,7 +21,7 @@ async function pipe(bytes, stream) {
 
 /** state → compact JSON → deflate → base64url. Prefix z = compressed, j = plain. */
 export async function encodeState(state) {
-  const { room } = findRoom(state.venue, state.room);
+  const { room } = resolveRoom(state);
   const seatIds = roomSeats(room).map((s) => s.id);
   const seatOf = {};
   for (const [sid, gid] of Object.entries(state.seats)) if (gid) seatOf[gid] = seatIds.indexOf(sid);
@@ -31,6 +31,7 @@ export async function encodeState(state) {
     r: state.room,
     t: state.title || '',
     k: state.key,
+    ...(state.venue === 'custom' ? { cr: [state.custom.name || '', state.custom.counts] } : {}),
     g: state.guests.map((g) => [g.name, g.company, seatOf[g.id] ?? -1]),
   };
   const bytes = new TextEncoder().encode(JSON.stringify(compact));
@@ -44,10 +45,15 @@ export async function decodeState(payload) {
   if (kind === 'z') bytes = await pipe(bytes, new DecompressionStream('deflate-raw'));
   else if (kind !== 'j') throw new Error('Unknown link format');
   const c = JSON.parse(new TextDecoder().decode(bytes));
-  const found = findRoom(c.ve, c.r);
-  if (!found) throw new Error(`This link points to a room that no longer exists (${c.ve}/${c.r}).`);
-  const seatIds = roomSeats(found.room).map((s) => s.id);
   const state = { venue: c.ve, room: c.r, title: c.t || '', key: c.k || newKey(), guests: [], seats: {} };
+  if (c.ve === 'custom') {
+    if (!Array.isArray(c.cr)) throw new Error('Custom room missing');
+    state.custom = { name: String(c.cr[0] || ''), counts: c.cr[1] };
+  }
+  const found = resolveRoom(state);
+  if (!found) throw new Error(`This link points to a room that no longer exists (${c.ve}/${c.r}).`);
+  if (state.custom) state.custom = found.room.custom; // normalised counts
+  const seatIds = roomSeats(found.room).map((s) => s.id);
   seatIds.forEach((id) => (state.seats[id] = null));
   c.g.forEach(([name, company, idx], i) => {
     const id = 'g' + i;
