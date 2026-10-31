@@ -1,6 +1,6 @@
-import { VENUES, CARD_W, CARD_H, CUSTOM_LIMITS, findRoom, resolveRoom, customRoom, roomSeats, roomLayout } from './venues.js?v=c79539';
-import { encodeState, decodeState, newKey } from './share.js?v=c79539';
-import { parseGuests } from './paste.js?v=c79539';
+import { VENUES, CARD_W, CARD_H, CUSTOM_LIMITS, findRoom, resolveRoom, customRoom, roomSeats, roomLayout } from './venues.js?v=s80858';
+import { encodeState, decodeState, newKey } from './share.js?v=s80858';
+import { parseGuests } from './paste.js?v=s80858';
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -36,8 +36,16 @@ async function route() {
   }
 }
 
+const HOME_TITLE = document.title;
+
 function show(id) {
   for (const v of ['picker', 'editor', 'error']) $(v).hidden = v !== id;
+  document.documentElement.classList.remove('has-chart');
+  if (id !== 'editor') document.title = HOME_TITLE;
+}
+
+function setChartTitle() {
+  document.title = `${state.title || room.name} · Seating chart`;
 }
 
 function setCrumbs(html) { $('crumbs').innerHTML = html; }
@@ -162,6 +170,7 @@ function showEditor() {
     ? `<span>${esc(room.name)}</span>`
     : `<span>${esc(venue.name)}</span><span class="sep">/</span><span>${esc(room.name)}</span>`);
   $('titleInput').value = state.title;
+  setChartTitle();
   locked = mobileQuery.matches;
   editedSinceUnlock = false;
   buildStage();
@@ -529,7 +538,7 @@ function wire() {
     addGuests(parseGuests(box.value), true); box.value = ''; box.dispatchEvent(new Event('input'));
   };
 
-  $('titleInput').addEventListener('change', (e) => change(() => (state.title = e.target.value.trim())));
+  $('titleInput').addEventListener('change', (e) => { change(() => (state.title = e.target.value.trim())); setChartTitle(); });
   $('undoBtn').onclick = undo;
   $('clearBtn').onclick = () => change(() => { for (const k in state.seats) state.seats[k] = null; });
   $('printBtn').onclick = () => window.print();

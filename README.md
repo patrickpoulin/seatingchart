@@ -31,3 +31,9 @@ Phones and GitHub Pages cache CSS/JS for a while. After changing any file in `cs
 ```sh
 V=$(date +%s); sed -i -E "s/\?v=[A-Za-z0-9]+/?v=$V/g" index.html js/app.js js/share.js
 ```
+
+## SEO
+- `sitemap.xml` – submit `https://patrickpoulin.github.io/seatingchart/sitemap.xml` in Google Search Console (URL-prefix property for `https://patrickpoulin.github.io/seatingchart/`). Update `<lastmod>` when the homepage content changes.
+- `llms.txt` – plain-language summary for AI assistants.
+- `og-image.png` – link preview image (1200×630). Title, description, Open Graph tags and JSON-LD (WebApplication + FAQPage) are in `index.html`; keep the FAQ JSON-LD in sync with the visible FAQ.
+- `robots.txt` only works at the domain root (`patrickpoulin.github.io/robots.txt`), so it would live in a `patrickpoulin.github.io` repo, not here. Without one, everything is crawlable, which is what we want.

@@ -1,0 +1,22 @@
+# SeatingChart
+
+> SeatingChart is a free, browser-based seating chart maker for dinners, events and meetings. Users paste a guest list (Name and Company) from Excel, Google Sheets or CSV, drag guests between seats, and share the chart as a link. No account or sign-up is needed, and charts are not stored on a server.
+
+URL: https://patrickpoulin.github.io/seatingchart/
+
+## What it does
+- Pick a preset venue room (for example Opto, Copper Room: one long table, 12 seats) or set up a custom room with 1–20 rectangular tables and 2–24 seats per table.
+- Paste guests from a spreadsheet; they fill empty seats in order. Extra guests wait in an Unseated list.
+- Drag a guest onto a seat to place them; dropping onto an occupied seat swaps the two guests. Undo is available.
+- Share: the entire chart is encoded in the link after the # sign, so nothing is uploaded to a server. Anyone with the link can open it.
+- Collaboration works by passing links: editing someone's link creates a new link with the new version; the original is unchanged. There is no live syncing.
+- On phones, tables are shown vertically, charts open view-only, and editing requires tapping Unlock and pressing-and-holding a guest.
+- Desktop printing gives a landscape layout suitable for saving as PDF.
+
+## Limitations
+- Rectangular tables only (no round tables yet).
+- No live multi-user editing; versions are shared as links.
+- Guest photos are not supported.
+
+## Source
+- https://github.com/patrickpoulin/seatingchart

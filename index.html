@@ -3,11 +3,140 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Seating Chart</title>
+  <title>Free Seating Chart Maker for Dinners &amp; Events | SeatingChart</title>
+  <meta name="description" content="Plan who sits where in minutes: paste a guest list from Excel or Google Sheets, drag guests between seats, and share the chart as a private link. Free, no sign-up." />
+  <link rel="canonical" href="https://patrickpoulin.github.io/seatingchart/" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta name="theme-color" content="#f6f1ea" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#1b1714" media="(prefers-color-scheme: dark)" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="SeatingChart" />
+  <meta property="og:title" content="Free Seating Chart Maker for Dinners &amp; Events" />
+  <meta property="og:description" content="Plan who sits where in minutes: paste a guest list from Excel or Google Sheets, drag guests between seats, and share the chart as a private link. Free, no sign-up." />
+  <meta property="og:url" content="https://patrickpoulin.github.io/seatingchart/" />
+  <meta property="og:image" content="https://patrickpoulin.github.io/seatingchart/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="A dinner table seating chart with guest names around a long table" />
+  <meta property="og:locale" content="en_US" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Free Seating Chart Maker for Dinners &amp; Events" />
+  <meta name="twitter:description" content="Plan who sits where in minutes: paste a guest list from Excel or Google Sheets, drag guests between seats, and share the chart as a private link. Free, no sign-up." />
+  <meta name="twitter:image" content="https://patrickpoulin.github.io/seatingchart/og-image.png" />
+
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+
+  <script>/* chart links skip the homepage content so it doesn't flash before the chart loads */
+    if (/^#c=/.test(location.hash)) document.documentElement.classList.add('has-chart');</script>
+  <script type="application/ld+json">
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "SeatingChart",
+    "alternateName": "Seating Chart Maker",
+    "url": "https://patrickpoulin.github.io/seatingchart/",
+    "description": "Plan who sits where in minutes: paste a guest list from Excel or Google Sheets, drag guests between seats, and share the chart as a private link. Free, no sign-up.",
+    "applicationCategory": "BusinessApplication",
+    "applicationSubCategory": "Event planning",
+    "operatingSystem": "Any (runs in a web browser)",
+    "browserRequirements": "Requires JavaScript",
+    "isAccessibleForFree": true,
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "featureList": [
+      "Drag-and-drop seating that snaps to the nearest seat and swaps guests automatically",
+      "Paste guest lists straight from Excel, Google Sheets or CSV",
+      "Custom rooms with up to 20 tables and 2–24 seats per table",
+      "Phone-friendly view that opens read-only, so nothing moves by accident",
+      "Share link that carries the whole chart, with no account and no server storage",
+      "Unseated guest list, undo and a print-ready layout"
+    ],
+    "image": "https://patrickpoulin.github.io/seatingchart/og-image.png",
+    "inLanguage": "en"
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is SeatingChart free?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. SeatingChart is completely free and needs no account or sign-up. Open the page, create a chart and start seating guests."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I add my guest list?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Copy the Name and Company columns from Excel, Google Sheets or a CSV file and paste them into the Add guests box. Each line becomes one guest, a header row is skipped automatically, and guests fill the empty seats in order. Adding guests is done on a computer."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I move guests between seats?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Drag a guest onto a seat and they snap into place. Drop them on a seat that is already taken and the two guests swap. Drag someone to the Unseated list to take them off the table. Undo reverses the last change."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Where is my seating chart saved?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The whole chart is stored inside its link, after the # sign. That part of a link is never sent to a web server, so nothing is saved on a server and there is no database. Anyone who has the link can open the chart, so share it the way you would share a private document."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can several people work on the same chart?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, by passing the link around. When someone opens your link and makes changes, they get a new link with their version, and your original link stays unchanged. They copy their new link and send it back to you. Changes are not synced live."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I set up my own room and tables?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. In the Set up your own room section, choose 1 to 20 tables and 2 to 24 seats per table, and optionally name the room. Tables are rectangular: tables with 6 or more seats get one seat at each end and the rest split across the two long sides."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does it work on a phone?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. On a phone, tables turn vertical so the chart fits the screen without sideways scrolling. Charts open as view-only so nothing moves by accident; tap Unlock to edit, then press and hold a guest to drag them."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I print the seating chart?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. On a computer, use the Print button for a clean landscape layout of the tables and guest names, or save it as a PDF from the print dialog."
+        }
+      }
+    ]
+  }
+]
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=c79539" />
+  <link rel="stylesheet" href="css/style.css?v=s80858" />
 </head>
 <body>
   <header class="topbar">
@@ -16,9 +145,14 @@
   </header>
 
   <!-- Step 1: pick venue + room -->
-  <main id="picker" class="view" hidden>
+  <main id="picker" class="view">
+    <section class="hero">
+      <h1>Free seating chart maker for dinners &amp; events</h1>
+      <p class="lede">Paste your guest list, drag people between seats, and share the chart as a link. No sign-up, nothing to install.</p>
+    </section>
+
     <section class="picker-card">
-      <h1>New seating chart</h1>
+      <h2 class="card-title">New seating chart</h2>
       <p class="muted">Pick a venue and a room. You'll get a private link you can send to anyone.</p>
       <label class="field">
         <span>Venue</span>
@@ -59,6 +193,66 @@
       <p class="muted small" id="customInfo"></p>
       <button class="btn primary" id="customStartBtn">Create chart</button>
     </section>
+    <section class="about" aria-labelledby="how-title">
+      <h2 id="how-title">How to make a seating chart</h2>
+      <ol class="steps">
+        <li><b>Pick a room.</b> Choose a venue room, or set up your own with as many tables and seats as you need.</li>
+        <li><b>Paste your guest list.</b> Copy Name and Company from a spreadsheet. Guests fill the empty seats in order, and anyone left over waits in the Unseated list.</li>
+        <li><b>Drag to rearrange.</b> Drop a guest on a seat to place them, or on another guest to swap the two.</li>
+        <li><b>Share the link.</b> Copy the share link and send it. Others can view the chart on their phone, or make changes and send their version back.</li>
+      </ol>
+
+      <h2>What you can do</h2>
+      <ul class="features">
+        <li>Drag-and-drop seating that snaps to the nearest seat and swaps guests automatically</li>
+        <li>Paste guest lists straight from Excel, Google Sheets or CSV</li>
+        <li>Custom rooms with up to 20 tables and 2–24 seats per table</li>
+        <li>Phone-friendly view that opens read-only, so nothing moves by accident</li>
+        <li>Share link that carries the whole chart, with no account and no server storage</li>
+        <li>Unseated guest list, undo and a print-ready layout</li>
+      </ul>
+
+      <h2>Frequently asked questions</h2>
+      <div class="faq">
+        <details>
+          <summary><h3>Is SeatingChart free?</h3></summary>
+          <p>Yes. SeatingChart is completely free and needs no account or sign-up. Open the page, create a chart and start seating guests.</p>
+        </details>
+        <details>
+          <summary><h3>How do I add my guest list?</h3></summary>
+          <p>Copy the Name and Company columns from Excel, Google Sheets or a CSV file and paste them into the Add guests box. Each line becomes one guest, a header row is skipped automatically, and guests fill the empty seats in order. Adding guests is done on a computer.</p>
+        </details>
+        <details>
+          <summary><h3>How do I move guests between seats?</h3></summary>
+          <p>Drag a guest onto a seat and they snap into place. Drop them on a seat that is already taken and the two guests swap. Drag someone to the Unseated list to take them off the table. Undo reverses the last change.</p>
+        </details>
+        <details>
+          <summary><h3>Where is my seating chart saved?</h3></summary>
+          <p>The whole chart is stored inside its link, after the # sign. That part of a link is never sent to a web server, so nothing is saved on a server and there is no database. Anyone who has the link can open the chart, so share it the way you would share a private document.</p>
+        </details>
+        <details>
+          <summary><h3>Can several people work on the same chart?</h3></summary>
+          <p>Yes, by passing the link around. When someone opens your link and makes changes, they get a new link with their version, and your original link stays unchanged. They copy their new link and send it back to you. Changes are not synced live.</p>
+        </details>
+        <details>
+          <summary><h3>Can I set up my own room and tables?</h3></summary>
+          <p>Yes. In the Set up your own room section, choose 1 to 20 tables and 2 to 24 seats per table, and optionally name the room. Tables are rectangular: tables with 6 or more seats get one seat at each end and the rest split across the two long sides.</p>
+        </details>
+        <details>
+          <summary><h3>Does it work on a phone?</h3></summary>
+          <p>Yes. On a phone, tables turn vertical so the chart fits the screen without sideways scrolling. Charts open as view-only so nothing moves by accident; tap Unlock to edit, then press and hold a guest to drag them.</p>
+        </details>
+        <details>
+          <summary><h3>Can I print the seating chart?</h3></summary>
+          <p>Yes. On a computer, use the Print button for a clean landscape layout of the tables and guest names, or save it as a PDF from the print dialog.</p>
+        </details>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <p><b>SeatingChart</b> is a free seating chart maker for dinners, events and meetings. Your guest list lives in your link and is never stored on a server.</p>
+      <p><a href="https://github.com/patrickpoulin/seatingchart">Source code on GitHub</a></p>
+    </footer>
   </main>
 
   <!-- Step 2: the editor -->
@@ -114,6 +308,8 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script type="module" src="js/app.js?v=c79539"></script>
+  <noscript><p class="noscript">SeatingChart needs JavaScript turned on to build and edit charts.</p></noscript>
+
+  <script type="module" src="js/app.js?v=s80858"></script>
 </body>
 </html>
